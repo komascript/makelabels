@@ -32,34 +32,286 @@
   \input l3docstrip.tex
   \generate{%
     \file{makelabels.lco}{\from{makelabels.dtx}{lco}}%
-%    \file{makelabels-example.tex}{\from{makelabels.dtx}{exmpl,simple}}%
-%    \file{makelabels-envlab-example.tex}{\from{makelabels.dtx}{exmpl,envlab}}%
+    \file{makelabels-example.tex}{\from{makelabels.dtx}{exmpl,simple}}%
+    \file{makelabels-envlab-example.tex}{\from{makelabels.dtx}{exmpl,envlab}}%
   }
 \else
   \let\endbatchfile\relax
 \fi
 \endbatchfile
 \documentclass{l3doc}
+\usepackage{booktabs}
+\usepackage{scrlogo}
+\usepackage{graphicx}
 \GetFileInfo{makelabels.dtx}
 \begin{document}
 \title{Adding label functionality to \file{scrlttr2} and \file{scrletter}
   using \file{makelabels.lco}}
-\date{\fileversion{} \filedate}
+\date{\fileversion{} \filedate\footnote{For support and/or bug reports see
+    \href{https://github.com/komascript/makelabels}{the project pages}.}}
 \author{Markus Kohm}
 \maketitle
+\begin{abstract}
+  In opposite to the standard letter class, the \KOMAScript{} letter class
+  \file{scrlttr2} and the \KOMAScript{} letter package \file{scrletter} do not
+  provide generation of a label page using \cs{makelabels}. But \KOMAScript{}
+  provides the option to add new letter features using LCO
+  files. \file{makelabels.lco} is such a LCO file. It provides \cs{makelabels}
+  similar to the standard letter class. The new \cs{makelabels} has a
+  yet very rudimentary configurability but much more than the standard letter
+  class provides. However, it is also as much compatible as needed that
+  packages like \href{https://www.ctan.org/pkg/enlab}{\file{envlab}} can be
+  used. From version 1.0 \file{makelabels.lco} is implemented using
+  \href{https://www.ctan.org/pkg/l3kernel}{\file{expl3}}.
+\end{abstract}
 \tableofcontents
 \DocInput{\filename}
 \end{document}
 %</dtx>
 % \fi^^A meta-comment
 %
+% \changes{v0.5}{2008/01/11}{First version released at
+%   as \file{mlabel.lco} at \url{https://komascript.de/mlabel.lco}}
 % \changes{v1.0}{2021/08/11}{Reimplementation using \file{expl3} syntax}
 %
-% \section{User Manual}
+% \section{Installation}
 %
-% The user manual is currently not existing.
+% It is recommended to use the package installer of the \TeX{}
+% distribution. If you don't use a \TeX{} distribution with package installer,
+% that provides \file{makelabels.lco}, please see the advanced installation
+% information in the
+% \href{https://github.com/komascript/makelabels/blob/main/README.md}%
+% {\file{README.md}}.
 %
-% \StopEventually{\PrintChanges\PrintIndex}
+% \section{Basic Usage}
+%
+% First of all please note, that \file{makelabels.lco} needs \LaTeX{} from
+% version 2020/10/01. It is recommended to use at least \LaTeX{} 2021/06/01,
+% because this is the \LaTeX{} version used for development of
+% \file{makelabels.lco}. Also \KOMAScript{} version 3.34 or newer is
+% recommended. If you would use an older \KOMAScript{} version you would do
+% this on your own risk. Please do not expect any support in this
+% case.
+%
+% To use the \file{makelabels.lco} you have to use either \KOMAScript{}
+% letter class \file{scrlttr2} or \file{scrletter} or the \KOMAScript{}
+% letter package \file{scrletter}. After loading the class resp. package you
+% have to load \file{makelabels.lco} using:
+% \begin{verbatim}
+% \LoadLetterOption{makelabels}
+% \end{verbatim}
+% in your document preamble. Note: This LCO cannot be loaded after
+% |\begin{document}|.
+%
+% Loading the LCO file already activates generation of label information
+% inside the \file{aux}-file of your document. Nothing else.
+%
+% \DescribeMacro\makelabels
+% To activate the label generation you have to add
+% \begin{verbatim}
+% \makelabels
+% \end{verbatim}
+% to your document preamble after loading \file{makelabels.lco} (see
+% above). Now at the end of the document, after printing all letters
+% \file{makelabels} generates one or more additional sheets with address
+% labels. The default label sheet is of type Avery~5162. This is a label sheet
+% with seven rows and two columns of labels. It is compatible with several
+% other Avery label types.
+%
+% \DescribeMacro\selectlabeltype
+% If you need more than one label per letter or another label type you can use:
+% \begin{syntax}
+% \cs{selectlabeltype}\oarg{integer}\marg{string}
+% \end{syntax}
+% This selects \meta{integer} labels of type \meta{string} for each following
+% letter (inclusive the current letter, if used between |\begin{letter}| and
+% |\end{letter}|. See \autoref{tab:labeltypes} for the allowed \meta{string}
+% arguments and the corresponding label types.
+%
+% \begin{table}
+%   \begin{minipage}{\linewidth}
+%   \centering
+%   \begin{tabular}{llr}
+%     \toprule
+%     \textbf{\meta{string}} & \multicolumn2l{\textbf{Specification}} \\
+%                            & Measure & {Value} \\
+%     \midrule
+%       \texttt{avery\_5162}\footnote{\url{https://www.avery.com/products/labels/5162}}
+%                            & sheet height              & 11\,in\\
+%                            & sheet width               & 8.5\,in\\
+%                            & sheet top margin          & 0.845\,in\\
+%                            & sheet bottom margin       & 0.845\,in\\
+%                            & sheet left margin         & 0.167\,in\\
+%                            & sheet right margin        & 0.167\,in\\
+%                            & label height              & 1.330\,in\\
+%                            & label width               & 4\,in\\
+%                            & horizontal distance       & 0.166\,in\\
+%                            & vertical distance         & 0\,pt\\
+%                            & label left margin         & 5\,pt\\
+%                            & label right margin        & 5\,pt\\
+%                            & label top margin          & 0\,pt\\
+%                            & label bottom margin       & 0\,pt\\
+%                            & rows                      & 7\hphantom{\,pt}\\
+%                            & columns                   & 2\hphantom{\,pt}\\
+%     \bottomrule
+%   \end{tabular}
+%   \caption{Known Label Types}
+%   \label{tab:labeltypes}
+%   \end{minipage}
+% \end{table}
+%
+% \section{Advanced Usage}
+%
+% \DescribeMacro\makelabels_add_label_type:nn
+% Advanced users can add their own label sheet definitions. But currently
+% there is only an \file{expl3} interface for this. If you do not know
+% \file{expl3}, please stop reading. There is no support for this feature,
+% currently.
+% \begin{syntax}
+%   \cs{makelabels_add_label_type:nn} \meta{string}
+%   \{
+%     sheet height        = \meta{dim_1},
+%     sheet width         = \meta{dim_2},
+%     sheet top margin    = \meta{dim_3},
+%     sheet bottom margin = \meta{dim_4},
+%     sheet left margin   = \meta{dim_5},
+%     sheet right margin  = \meta{dim_6},
+%     vertical distance   = \meta{dim_7},
+%     horizontal distance = \meta{dim_8},
+%     label height        = \meta{dim_9},
+%     label width         = \meta{dim_{10}},
+%     label top margin    = \meta{dim_{11}},
+%     label bottom margin = \meta{dim_{12}},
+%     rows                = \meta{int_{1}},
+%     columns             = \meta{int_{2}}
+%   \}
+% \end{syntax}
+% Currently all \meta{dim_x}, which are not specified, will be 0\,pt and all
+% \meta{int_x}, which are not specified, will be 1.
+%
+% The names of the properties should be self-explaining. If not, don't use it!
+%
+% Note: You can participate in the development of \file{makelabels.lco} by
+% posting and explaining your own label specifications.
+%
+% \section{Simple Example}
+% \label{sec:simpleexample}
+%
+% A very simple example for using \file{makelabels.lco} would be:
+% \iffalse^^A meta-comment
+%<*exmpl&simple>
+% \fi
+%    \begin{macrocode}
+\documentclass[paper=letter]{scrletter}
+\LoadLetterOptions{UScommercial9,makelabels}
+\usepackage[english]{babel}
+\usepackage{blindtext}
+\setkomavar{fromname}{John Doe}
+\setkomavar{fromaddress}{1 Lambda Street\\Anyplace, NY 12345}
+\makelabels
+\usepackage{showframe}
+\begin{document}
+\begin{letter}{Jane Doe\\2 Alpha Street\\Otherplace, NY 12346}
+\opening{Dear Jane,}
+\blindtext
+\closing{With love}
+\end{letter}
+\end{document}
+%    \end{macrocode}
+% \iffalse^^A meta-comment
+%</exmpl&simple>
+% \fi
+% It would produce the two pages shown in \autoref{fig:example}.
+%
+% \begin{figure}
+%   \centering
+%   \begin{tabular}{|l|l|}
+%     \hline
+%     \includegraphics[page=1,width=.45\linewidth]{makelabels-example.pdf} &
+%     \includegraphics[page=2,width=.45\linewidth]{makelabels-example.pdf} \\
+%     \hline
+%   \end{tabular}
+%   \caption{The letter and the label sheet of the simple example of
+%     \protect\autoref{sec:simpleexample}.}
+%   \label{fig:example}
+% \end{figure}
+%
+% If you like, you could add an additional
+% \begin{verbatim}
+% \selectlabeltype[14]{avery_5162}
+% \end{verbatim}
+% after |\begin{document}|. In this case, you would get a whole sheet of 14
+% labels (7 rows by 2 columns).
+%
+% \section{Example using additional label packages}
+% \label{sec:envlabexample}
+% As already mentioned in the abstract you can use \file{makelabels.lco}
+% together with package \href{https://ctan.org/pkg/envlab}{\file{envlab}}. In
+% this case, it is important to load \file{makelabels.lco} before package
+% \file{envlab}:
+% \iffalse^^A meta-comment
+%<*exmpl&envlab>
+% \fi
+%    \begin{macrocode}
+\documentclass[paper=letter]{scrletter}
+\LoadLetterOptions{UScommercial9,makelabels}
+\usepackage[english]{babel}
+\usepackage{blindtext}
+\setkomavar{fromname}{John Doe}
+\setkomavar{fromaddress}{1 Lambda Street\\Anyplace, NY 12345}
+
+\usepackage[centerenvelopes,businessenvelope]{envlab}
+\setlength{\FromAddressTopMargin}{0.25in}                                
+\setlength{\FromAddressLeftMargin}{0.25in}                               
+\makelabels
+
+\begin{document}
+
+\begin{letter}{Jane Doe\\2 Alpha Street\\Otherplace, NY 12346}
+\opening{Dear Jane,}
+\blindtext
+\closing{With love}
+\end{letter}
+\end{document}
+%    \end{macrocode}
+% \iffalse^^A meta-comment
+%</exmpl&envlab>
+% \fi
+% It would produce the two pages shown in \autoref{fig:envlabexample}.
+%
+% \begin{figure}
+%   \centering
+%   \begin{tabular}{|l|l|}
+%     \hline
+%     \includegraphics[page=1,width=.45\linewidth]{makelabels-envlab-example.pdf} &
+%     \includegraphics[page=2,width=.45\linewidth]{makelabels-envlab-example.pdf} \\
+%     \hline
+%   \end{tabular}
+%   \caption{The letter and the envelope sheet of the \protect\file{envlab}
+%     example of \protect\autoref{sec:envlabexample}.}
+%   \label{fig:envlabexample}
+% \end{figure}
+%
+% Please note: package \file{envlab} redefines macro |\@toaddressfont|, which
+% is also an internal macro of \file{scrlttr2} or \file{scrletter}. The
+% \KOMAScript{} classes resp. the \KOMAScript{} package uses this to store the
+% font of the recipient's address. So loading \file{envlab} will change the
+% font of the recipient's address. To avoid this you could use additional
+% preamble code:
+% \begin{verbatim}
+% \makeatletter
+% \AtBeginDocument{%
+%   \immediate\write\@auxout{%
+%     \string\def\string\@toaddressfont{%
+%       \expandafter\detokenize\expandafter{\@toaddressfont}}}%
+%   \setkomafont{toaddress}{}% set the recepient's address font
+% }
+% \makeatother
+% \end{verbatim}
+% This delays the \file{envlab}'s redefinition of |\@toaddressfont| until the
+% \emph{labels} are generated.
+%
+% \StopEventually{}
 %
 % \section{Implementation}
 %
@@ -434,7 +686,7 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% We need to not forgett to switch of \file{expl3} syntax, because this is not
+% We need to not forget to switch of \file{expl3} syntax, because this is not
 % a package but a LCO.
 %    \begin{macrocode}
 \ExplSyntaxOff

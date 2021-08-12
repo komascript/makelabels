@@ -1,0 +1,450 @@
+% \iffalse^^A meta-comment
+% ======================================================================
+% makelabels.dtx
+% Copyright (c) Markus Kohm, 2009-2021
+%
+% This file is part of the LaTeX2e package `makelabels'.
+%
+% This work may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License, version 1.3c of the license.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2005/12/01 and of this work.
+%
+% This work has the LPPL maintenance status "author-maintained".
+%
+% The Current Maintainer and author of this work is Markus Kohm.
+%
+% This work consists of the files `makelabels.dtx' and `README.md'.
+% ======================================================================
+%
+%<*dtx>
+\ifx\ProvidesFile\undefined\def\ProvidesFile#1[#2]{}\fi
+\ProvidesFile{makelabels.dtx}
+%</dtx>
+%<lco>\ProvidesFile{makelabels.lco}
+%<exmpl&simple>\ProvidesFile{makelabels-example.tex}
+%<exmpl&envlab>\ProvidesFile{makelabels-envlab-example.tex}
+  [2021/11/08 v1.0 provide labels with scrlttr2 and scrletter]
+%<*dtx>
+\ifx\documentclass\undefined
+  \input l3docstrip.tex
+  \generate{%
+    \file{makelabels.lco}{\from{makelabels.dtx}{lco}}%
+%    \file{makelabels-example.tex}{\from{makelabels.dtx}{exmpl,simple}}%
+%    \file{makelabels-envlab-example.tex}{\from{makelabels.dtx}{exmpl,envlab}}%
+  }
+\else
+  \let\endbatchfile\relax
+\fi
+\endbatchfile
+\documentclass{l3doc}
+\GetFileInfo{makelabels.dtx}
+\begin{document}
+\title{Adding label functionality to \file{scrlttr2} and \file{scrletter}
+  using \file{makelabels.lco}}
+\date{\fileversion{} \filedate}
+\author{Markus Kohm}
+\maketitle
+\tableofcontents
+\DocInput{\filename}
+\end{document}
+%</dtx>
+% \fi^^A meta-comment
+%
+% \changes{v1.0}{2021/08/11}{Reimplementation using \file{expl3} syntax}
+%
+% \section{User Manual}
+%
+% The user manual is currently not existing.
+%
+% \StopEventually{\PrintChanges\PrintIndex}
+%
+% \section{Implementation}
+%
+%    \begin{macrocode}
+%<*lco>
+%<@@=makelabels>
+%    \end{macrocode}
+%
+% \subsection*{Load time actions}
+%
+% We need at least \LaTeX{} 2020/10/01.
+%    \begin{macrocode}
+\newcommand*{\makelabels@fatal@format@error}{%
+  \GenericError{(makelabels)\@spaces\@spaces\@spaces\@spaces}%
+               {Fatal makelabels.lco error: LaTeX too old.}%
+               {See the makelabels.lco documentation for explanation.}%
+               {At least LaTeX 2020/10/01 is needed}%
+  \endinput
+}
+\@ifundefined{IfFormatAtLeastTF}{%
+  \makelabels@fatal@format@error
+}{%
+  \IfFormatAtLeastTF{2020/10/01}{}{\makelabels@fatal@format@error}%
+}
+%    \end{macrocode}
+%
+% With this version of \LaTeX{}, we do not need to load \file{expl3}
+% explicitly but can just switch to the syntax.
+%    \begin{macrocode}
+\ExplSyntaxOn
+%    \end{macrocode}
+%
+% This LCO file can be used in the document preamble only. If we are already
+% have begun the document, this would be fatal.
+%    \begin{macrocode}
+\msg_new:nnn { makelabels } { onlypreamble }
+  { Sorry,~but~`makelabels.lco'~can~be~used~in~the~document~preamble~only. }
+\if@atdocument
+  \msg_fatal:nnn { makelabels } { onlypreamble }
+\fi
+%    \end{macrocode}
+%
+% \begin{macro}{\makelabels_add_label_type:nn}
+% Labels have only a width and height. They are placed in a number of rows and
+% columns at a label sheet. The sheet has also a width and height.  There is a
+% margin left of the first label, above the first label, right of the first
+% label and below the last label. And there may be a horizontal and a vertical
+% distance between the labels. See the definition of Avery 5162 labels for
+% all properties.
+%
+% Note: currently all properties have to be setup correctly.
+%    \begin{macrocode}
+\cs_new_nopar:Nn \makelabels_add_label_type:nn
+  {
+    \prop_new:c { g_@@_label_type_#1_prop }
+    \prop_set_from_keyval:cn { g_@@_label_type_#1_prop } { #2 }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% The first label type we define is \texttt{avery_5162}:
+%    \begin{macrocode}
+\makelabels_add_label_type:nn { avery_5162 }
+  {
+    sheet height              = 11 in,
+    sheet width               = 8.5 in,
+    sheet top margin          = 0.845 in,
+    sheet bottom margin       = 0.845 in,
+    sheet left margin         = 0.167 in,
+    sheet right margin        = 0.167 in,
+    label height              = 1.330 in,
+    label width               = 4 in,
+    horizontal distance       = 0.166 in,
+    vertical distance         = 0 pt,
+    label left margin         = 5 pt,
+    label right margin        = 5 pt,
+    label top margin          = 0 pt,
+    label bottom margin       = 0 pt,
+    rows                      = 7,
+    columns                   = 2,
+  }
+%    \end{macrocode}
+%
+% We also have to take care that at the end of each letter the label is written
+% to the \file{aux}-file:
+%    \begin{macrocode}
+\NewExpandableDocumentCommand \@@_Ifkomavarempty { s m m m }
+  {
+    \IfBooleanTF { #1 }
+      {
+        \exp_args:Nc \@@_if_empty_var_or_name:NTF{scr@#2@name}{#3}{#4}
+      }
+      {
+        \exp_args:Nc \@@_if_empty_var_or_name:NTF{scr@#2@var}{#3}{#4}
+      }
+  }
+
+\prg_new_conditional:Nnn \@@_if_empty_var_or_name:N { p, T, F, TF }
+  {
+    \if_cs_exist:N #1 
+      \if_meaning:w #1 \c_empty_tl
+        \prg_return_true: \else: \prg_return_false: \fi:
+    \else:
+      \prg_return_false:
+    \fi:
+  }
+
+\NewExpandableDocumentCommand \@@_usekomavar { s o m }
+  {
+    \IfValueTF{#2}{#2}{\use:e}{\cs:w scr@#3@\IfBooleanTF{#1}{name}{var}\cs_end:}
+  }
+  
+\AtEndLetter
+  {
+    \if@filesw
+      \group_begin:
+        \cs_set:Npn \Ifkomavarempty { \@@_Ifkomavarempty }
+        \cs_set:Npn \usekomavar { \@@_usekomavar }
+        \iow_now:Nx \@mainaux
+          {
+            \token_to_str:N \@mlabel
+            \iow_char:N \{ \usekomavar{backaddress} \iow_char:N \}
+            \iow_char:N \{ \usekomavar{toname} \iow_char:N \\ \iow_char:N \\
+                           \usekomavar{toaddress} \iow_char:N \}
+          }
+      \group_end:
+    \fi
+  }
+%    \end{macrocode}
+%
+% \subsection*{The preamble commands}
+%
+% \begin{macro}{\makelabels}
+% Preamble only command to activate the label generation via the
+% \file{aux}-file.
+%    \begin{macrocode}
+\cs_new:Npn \makelabels
+  {
+    \hook_gput_code:nnn { begindocument } { makelabels.lco }
+      {
+        \cs_set_eq:NN \@startlabels \startlabels
+        \cs_set_eq:NN \@mlabel \mlabel
+        \cs_set_eq:NN \@mlabeltype \mlabeltype
+        \if@filesw
+          \iow_now:Nn \@mainaux { \@startlabels }%
+        \fi
+      }
+    \hook_gput_code:nnn { enddocument / afterlastpage } { makelabels.lco }
+      {
+        \if@filesw
+          \iow_now:Nn \@mainaux { \clearpage } %
+        \fi
+      }  
+  }
+\@onlypreamble \makelabels  
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\selectlabeltype}
+% Used in the document preamble or inside the document to select another label
+% type.
+%    \begin{macrocode}
+\newcommand*{\selectlabeltype}[2][1]{
+  \cs_if_exist:cTF { g_@@_label_type_#2_prop }
+    {
+      \if@filesw
+        \iow_now:Nn \@mainaux
+          {
+            \@mlabeltype { #1 } { #2 }
+          }
+      \fi
+    }
+    {
+      \msg_error:nnn { makelabels } { unkown label type } { #1 }
+    }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection*{The \file{aux}-file commands}
+%
+% \begin{macro}{\@startlabels}
+% \begin{macro}{\@mlabel}
+% \begin{macro}{\@mlabeltype}
+% All these are dummies until \cs{makelabels} has been used.
+%    \begin{macrocode}
+\hook_gput_code:nnn { begindocument } { makelabels.lco }
+  {
+    \if@filesw
+      \iow_now:Nn \@mainaux { \providecommand* { \@startlabels } { } }
+      \iow_now:Nn \@mainaux { \providecommand* { \@mlabel }[2] { } }
+      \iow_now:Nn \@mainaux { \providecommand* { \@mlabeltype } [ 2 ] { } }
+    \fi
+  }
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\mlabeltype}
+% Select generating \#1 labels of type \#2.
+%    \begin{macrocode}
+\int_new:N \g_@@_label_repeat_int
+\int_set_eq:NN \g_@@_label_repeat_int \c_one_int
+\str_new:N \g_@@_label_type_str
+\str_set:Nn \g_@@_label_type_str { avery_5162 }
+\cs_new:Npn \mlabeltype #1#2
+  {
+    \int_set:Nn \g_@@_label_repeat_int { #1 }
+    \str_set:Nn \g_@@_label_type_str { #2 }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\startlabels}
+% Start a new label page. We have to setup several page layout parameter
+% depending on the current label type \cs{g_@@_label_type_str}.
+%    \begin{macrocode}
+\cs_new:Npn \startlabels
+  {
+    \clearpage
+    \if@twocolumn \onecolumn \fi
+    \pagestyle{empty}
+    \cs_set_eq:NN \@texttop \relax
+    \dim_set_eq:NN \headheight \c_zero_dim
+    \dim_set_eq:NN \headsep \c_zero_dim
+    \dim_set_eq:NN \lineskip \c_zero_dim
+    \@@_prop_get_dim:nN { sheet height } \paperheight
+    \@@_prop_get_dim:nN { sheet top margin } \topmargin
+    \dim_sub:Nn \topmargin { 1in }
+    \@@_prop_get_dim:nN { sheet width } \paperwidth
+    \@@_prop_get_dim:nN { sheet left margin } \oddsidemargin
+    \dim_sub:Nn \oddsidemargin { 1in }
+    \dim_set_eq:NN \evensidemargin \oddsidemargin
+    \@@_prop_get_int:nN { rows } \g_@@_rows_int
+    \@@_prop_get_int:nN { columns } \g_@@_columns_int
+    \@@_prop_get_dim:nN { label height } \g_@@_label_height_dim
+    \@@_prop_get_dim:nN { label width } \g_@@_label_width_dim
+    \@@_prop_get_dim:nN { vertical distance } \g_@@_vertical_skip_dim
+    \@@_prop_get_dim:nN { horizontal distance } \columnsep
+    \dim_set:Nn \textheight
+      {
+        ( \g_@@_label_height_dim + \g_@@_vertical_skip_dim ) * \g_@@_rows_int
+        - \g_@@_vertical_skip_dim
+      }
+    \dim_set:Nn \textwidth
+      {
+        ( \g_@@_label_width_dim + \columnsep ) * \g_@@_columns_int
+        - \columnsep
+      }
+    \@@_prop_get_dim:nN { label top margin } \g_@@_label_top_margin_dim
+    \@@_prop_get_dim:nN { label bottom margin } \g_@@_label_bottom_margin_dim
+    \@@_prop_get_dim:nN { label left margin } \g_@@_label_left_margin_dim
+    \@@_prop_get_dim:nN { label right margin } \g_@@_label_right_margin_dim
+    \activateareas
+    \fontsize{10pt}{12pt}\selectfont
+    \dim_set_eq:NN \boxmaxdepth \c_max_dim
+    \int_set_eq:NN \g_@@_row_int \c_one_int
+    \int_set_eq:NN \g_@@_column_int \c_one_int
+    \dim_set:Nn \g_@@_label_height_effective_dim
+      {
+        \g_@@_label_height_dim
+        - \g_@@_label_top_margin_dim
+        - \g_@@_label_bottom_margin_dim
+      }
+    \dim_set:Nn \g_@@_label_width_effective_dim
+      {
+        \g_@@_label_width_dim
+        - \g_@@_label_left_margin_dim
+        - \g_@@_label_right_margin_dim
+      }
+    \raggedright
+  }
+
+\int_new:N \g_@@_rows_int
+\int_new:N \g_@@_columns_int
+\int_new:N \g_@@_row_int
+\int_new:N \g_@@_column_int
+\dim_new:N \g_@@_label_height_dim
+\dim_new:N \g_@@_label_width_dim
+\dim_new:N \g_@@_label_top_margin_dim
+\dim_new:N \g_@@_label_bottom_margin_dim
+\dim_new:N \g_@@_label_left_margin_dim
+\dim_new:N \g_@@_label_right_margin_dim
+\dim_new:N \g_@@_label_height_effective_dim
+\dim_new:N \g_@@_label_width_effective_dim
+\dim_new:N \g_@@_vertical_skip_dim
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{function}{\@@_prop_get_dim:nN,\@@_prop_get_int:nN}
+%   \begin{syntax}
+%     \cs{@@_prop_get_dim:nN} \Arg{property string} \Arg{dimension variable}
+%     \cs{@@_prop_get_int:nN} \Arg{property string} \Arg{integer variable}
+%   \end{syntax}
+% Get a property from the property list of the current label type
+% \cs{g_@@_label_type_str} and store it as a dimension resp. integer. Unkown
+% properties result in a warning message. Unkown dimenionss are assumed to be
+% zero, unkown integers are assumed to be one.
+%    \begin{macrocode}
+\msg_new:nnn { makelabels } { undefined property }
+  { Property~`#1'~undefined~for~label~type~`\g_@@_label_type_str'.~
+    Value~#2~assumed. }
+
+\cs_new:Nn \@@_prop_get_dim:nN
+  {
+    \prop_get:cnNTF { g_@@_label_type_ \g_@@_label_type_str _prop } { #1 } \l_tmpa_tl
+      { \dim_set:Nn #2 \l_tmpa_tl }
+      {
+        \msg_warning:nnnn { makelabels } { undefined property } { #1 } { zero }
+        \dim_set_eq:NN #2 \c_zero_dim
+      }
+  }
+
+\cs_new:Nn \@@_prop_get_int:nN
+  {
+    \prop_get:cnNTF { g_@@_label_type_ \g_@@_label_type_str _prop } { #1 } \l_tmpa_tl
+      { \int_set:Nn #2 \l_tmpa_tl }
+      {
+        \msg_warning:nnnn { makelabels } { undefined property } { #1 } { one }
+        \int_set_eq:NN #2 \c_one_int
+      }
+  }
+%    \end{macrocode}
+% \end{function}
+%
+% \begin{macro}{\@@_print_one_label:}
+% Currently we do not support different output routines for different label
+% types. So this command is always the same.
+%    \begin{macrocode}
+\cs_new:Nn \@@_print_one_label:nn
+  {
+%    \frame{
+    \parbox[b][\g_@@_label_height_dim]{\g_@@_label_width_dim}{
+      \skip_vertical:N \g_@@_label_top_margin_dim
+      \skip_horizontal:N \g_@@_label_left_margin_dim
+      \parbox[c][\g_@@_label_height_effective_dim]{\g_@@_label_width_effective_dim}{
+        \ignorespaces #2
+      }
+      \skip_vertical:N \g_@@_label_bottom_margin_dim
+    }
+%    }
+    \int_incr:N \g_@@_column_int
+    \if_int_compare:w \g_@@_column_int > \g_@@_columns_int
+      \int_show:N \g_@@_column_int
+      \par
+      \skip_vertical:N \g_@@_vertical_skip_dim
+      \int_set_eq:NN \g_@@_column_int \c_one_int
+      \int_incr:N \g_@@_row_int
+      \if_int_compare:w \g_@@_row_int > \g_@@_rows_int
+        \int_show:N \g_@@_row_int
+        \clearpage
+        \int_set_eq:NN \g_@@_row_int \c_one_int
+      \fi
+    \else
+      \skip_horizontal:N \columnsep
+    \fi
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mlabel}
+% Output the configurated number of labels.
+%    \begin{macrocode}
+\cs_new:Npn \mlabel #1#2
+  {
+    \int_step_inline:nnn { 1 } { \g_@@_label_repeat_int }
+      {
+        \@@_print_one_label:nn { #1 } { #2 }
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% We need to not forgett to switch of \file{expl3} syntax, because this is not
+% a package but a LCO.
+%    \begin{macrocode}
+\ExplSyntaxOff
+%</lco>
+%    \end{macrocode}
+% \Finale
+%
+\endinput
+%
+% Local Variables:
+% mode: doctex
+% TeX-master: t
+% End:

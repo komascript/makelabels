@@ -26,14 +26,16 @@
 %<lco>\ProvidesFile{makelabels.lco}
 %<exmpl&simple>\ProvidesFile{makelabels-example.tex}
 %<exmpl&envlab>\ProvidesFile{makelabels-envlab-example.tex}
-  [2021/11/08 v1.0 provide labels with scrlttr2 and scrletter]
+  [2021/08/12 v1.0 provide labels with scrlttr2 and scrletter]
 %<*dtx>
 \ifx\documentclass\undefined
   \input l3docstrip.tex
   \generate{%
-    \file{makelabels.lco}{\from{makelabels.dtx}{lco}}%
-    \file{makelabels-example.tex}{\from{makelabels.dtx}{exmpl,simple}}%
-    \file{makelabels-envlab-example.tex}{\from{makelabels.dtx}{exmpl,envlab}}%
+    \usedir{tex/latex/makelabels}
+    \file{makelabels.lco}{\from{makelabels.dtx}{lco}}
+    \usedir{doc/latex/makelabels}
+    \file{makelabels-example.tex}{\from{makelabels.dtx}{exmpl,simple}}
+    \file{makelabels-envlab-example.tex}{\from{makelabels.dtx}{exmpl,envlab}}
   }
 \else
   \let\endbatchfile\relax

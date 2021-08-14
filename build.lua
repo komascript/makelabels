@@ -20,16 +20,20 @@ release_info = "2021/08/12 v1.0"
 
 module       = "makelabels"
 
-unpackfiles      = { "makelabels.dtx" }
+sourcefiles      = { "makelabels.dtx" }
+
+unpackfiles      = sourcefiles
 
 installfiles     = { "makelabels.lco" }
 
-sourcefiles      = { "makelabels.dtx" }
-
 typesetdemofiles = { "makelabels-example.tex", "makelabels-envlab-example.tex" }
-demofiles        = { "makelabels-example.tex", "makelabels-envlab-example.tex",
-                     "makelabels-example.pdf", "makelabels-envlab-example.pdf" }
-docfiles         = { "makelabels-example.pdf", "makelabels-envlab-example.pdf" }
+
+-- Change of typeset
+
+function typeset_demo_tasks()
+  cp("*.tex",unpackdir,typesetdir)
+  return 0
+end
 
 -- Package
 

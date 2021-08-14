@@ -14,7 +14,7 @@
     https://www.latex-project.org/lppl.txt
 ]]
 
-release_info = "2021/08/12 v1.0"
+release_info = "2021/08/14 v1.0"
 
 -- Bundle and modules
 
@@ -57,7 +57,7 @@ uploadconfig = {
 }
 
 -- Detail how to set the version automatically
--- Example: `l3build tag --date 2020/02/31 v0.3'
+-- Example: `l3build tag --date 2021/08/14 1.0'
 
 tagfiles = {"*.dtx","README.md","build.lua"}
 

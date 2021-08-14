@@ -47,8 +47,10 @@
 \usepackage{graphicx}
 \GetFileInfo{makelabels.dtx}
 \begin{document}
-\title{Adding label functionality to \file{scrlttr2} and \file{scrletter}
-  using \file{makelabels.lco}}
+\title{Adding label functionality to
+  \texorpdfstring{\file{scrlttr2}}{scrlttr2} and
+  \texorpdfstring{\file{scrletter}}{scrletter} using
+  \texorpdfstring{\file{makelabels.lco}}{makelabels.lco}}
 \date{\fileversion{} \filedate\footnote{For support and/or bug reports see
     \href{https://github.com/komascript/makelabels}{the project pages}.}}
 \author{Markus Kohm}
@@ -56,14 +58,15 @@
 \begin{abstract}
   In opposite to the standard letter class, the \KOMAScript{} letter class
   \file{scrlttr2} and the \KOMAScript{} letter package \file{scrletter} do not
-  provide generation of a label page using \cs{makelabels}. But \KOMAScript{}
-  provides the option to add new letter features using LCO
-  files. \file{makelabels.lco} is such a LCO file. It provides \cs{makelabels}
-  similar to the standard letter class. The new \cs{makelabels} has a
-  yet very rudimentary configurability but much more than the standard letter
-  class provides. However, it is also as much compatible as needed that
-  packages like \href{https://www.ctan.org/pkg/enlab}{\file{envlab}} can be
-  used. From version 1.0 \file{makelabels.lco} is implemented using
+  provide generation of a label page using \cs[no-index]{makelabels}. But
+  \KOMAScript{} provides the option to add new letter features using LCO
+  files. \file{makelabels.lco} is such a LCO file. It provides
+  \cs[no-index]{makelabels} similar to the standard letter class. The new
+  \cs[no-index]{makelabels} has a yet very rudimentary configurability but
+  much more than the standard letter class provides. However, it is also as
+  much compatible as needed that packages like
+  \href{https://www.ctan.org/pkg/enlab}{\file{envlab}} can be used. From
+  version 1.0 \file{makelabels.lco} is implemented using
   \href{https://www.ctan.org/pkg/l3kernel}{\file{expl3}}.
 \end{abstract}
 \tableofcontents
@@ -72,9 +75,46 @@
 %</dtx>
 % \fi^^A meta-comment
 %
-% \changes{v0.5}{2008/01/11}{First version released at
-%   as \file{mlabel.lco} at \url{https://komascript.de/mlabel.lco}}
+% \changes{v0.5}{2008/01/11}{First version released as \file{mlabel.lco} at
+%   \url{https://komascript.de/mlabel.lco}}
 % \changes{v1.0}{2021/08/11}{Reimplementation using \file{expl3} syntax}
+%
+% \DoNotIndex{\@ifundefined,\@mainaux,\@onlypreamble,\@spaces,\@texttop}
+% \DoNotIndex{\activateareas,\AtEndLetter}
+% \DoNotIndex{\begin,\blindtext,\boxmaxdepth}
+% \DoNotIndex{\c_empty_tl,\c_max_dim,\c_one_int,\c_zero_dim}
+% \DoNotIndex{\clearpage,\closing,\columnsep}
+% \DoNotIndex{\cs:w,\cs_end:}
+% \DoNotIndex{\cs_if_exist:cTF,\cs_if_exist:NTF,\cs_new:Nn,\cs_new:Npn}
+% \DoNotIndex{\cs_new_nopar:Nn}
+% \DoNotIndex{\cs_set:Npn,\cs_set_eq:NN,\dim_new:N,\dim_set:Nn,\dim_set_eq:NN}
+% \DoNotIndex{\dim_sub:Nn,\documentclass}
+% \DoNotIndex{\else:,\end,\endinput,\evensidemargin}
+% \DoNotIndex{\exp_args:Nc,\ExplSyntaxOff,\ExplSyntaxOn}
+% \DoNotIndex{\fi,\fi:,\fontsize,\frame,\FromAddressLeftMargin}
+% \DoNotIndex{\FromAddressTopMargin}
+% \DoNotIndex{\GenericError,\group_begin:,\group_end:}
+% \DoNotIndex{\headheight,\headsep,\hook_gput_code:nnn}
+% \DoNotIndex{\if@atdocument,\if@filesw,\if@twocolumn}
+% \DoNotIndex{\if_cs_exist:N,\if_int_compare:w,\if_meaning:w}
+% \DoNotIndex{\IfBooleanTF,\IfFormatAtLeastTF,\IfValueTF,\ignorespaces}
+% \DoNotIndex{\int_incr:N,\int_new:N,\int_set:Nn,\int_set_eq:NN}
+% \DoNotIndex{\int_step_inline:nnn}
+% \DoNotIndex{\iow_char:N,\iow_now:Nn,\iow_now:Nx}
+% \DoNotIndex{\l_tmpa_tl,\lineskip,\LoadLetterOptions}
+% \DoNotIndex{\msg_error:nnn,\msg_fatal:nnn,\msg_new:nnn,\msg_warning:nnnn}
+% \DoNotIndex{\newcommand,\NewExpandableDocumentCommand}
+% \DoNotIndex{\oddsidemargin,\onecolumn,\opening}
+% \DoNotIndex{\pagestyle,\paperheight,\paperwidth,\par,\parbox}
+% \DoNotIndex{\prop_new:c,\prop_new:N,\prg_new_conditional:Nnn}
+% \DoNotIndex{\prg_return_false:,\prg_return_true:}
+% \DoNotIndex{\prop_get:cnNTF,\prop_get:NnNTF,\prop_new:N}
+% \DoNotIndex{\prop_set_from_keyval:cn,\prop_set_from_keyval:Nn}
+% \DoNotIndex{\providecommand}
+% \DoNotIndex{\raggedright,\relax,\selectfont,\setkomavar,\setlength}
+% \DoNotIndex{\skip_horizontal:N,\skip_vertical:N,\str_new:N,\str_set:Nn}
+% \DoNotIndex{\textheight,\textwidth,\token_to_str:N,\topmargin}
+% \DoNotIndex{\use:e,\use:n,\usepackage}
 %
 % \section{Installation}
 %
@@ -312,7 +352,7 @@
 % This delays the \file{envlab}'s redefinition of |\@toaddressfont| until the
 % \emph{labels} are generated.
 %
-% \StopEventually{}
+% \StopEventually{\PrintChanges\PrintIndex}
 %
 % \section{Implementation}
 %
@@ -397,7 +437,11 @@
 %    \end{macrocode}
 %
 % We also have to take care that at the end of each letter the label is written
-% to the \file{aux}-file:
+% to the \file{aux}-file.
+% \begin{function}[EXP]{\@@_Ifkomavarempty}
+% To be able to write to the \file{aux}-file, we need an expandable verion
+% of \KOMAScript's \cs{Ifkomavarempty}. To make simple wrapping possible, we
+% define it as an internal document command.
 %    \begin{macrocode}
 \NewExpandableDocumentCommand \@@_Ifkomavarempty { s m m m }
   {
@@ -409,7 +453,12 @@
         \exp_args:Nc \@@_if_empty_var_or_name:NTF{scr@#2@var}{#3}{#4}
       }
   }
-
+%    \end{macrocode}
+% \end{function}
+% \begin{function}[pTF]{\@@_if_empty_var_or_name:N}
+% This is the real internal command. Now, the first argument is not the
+% variable any longer, but the macro storing the variable or name.
+%    \begin{macrocode}
 \prg_new_conditional:Nnn \@@_if_empty_var_or_name:N { p, T, F, TF }
   {
     \if_cs_exist:N #1 
@@ -419,12 +468,27 @@
       \prg_return_false:
     \fi:
   }
-
+%    \end{macrocode}
+% \end{function}
+%
+% \begin{function}[EXP]{\@@_usekomavar}
+% To be able to write to the \file{aux}-file, we need an expandable version
+% of \KOMAScript's \cs{usekomavar}. To make simple wrapping possible, we
+% define it as an internal document command.
+%    \begin{macrocode}
 \NewExpandableDocumentCommand \@@_usekomavar { s o m }
   {
     \IfValueTF{#2}{#2}{\use:e}{\cs:w scr@#3@\IfBooleanTF{#1}{name}{var}\cs_end:}
   }
-  
+%    \end{macrocode}
+% \end{function}
+%
+% Now, after defining new, expandable versions of most of the usually needed
+% not expandable \KOMAScript{} user command, we can write to the
+% \file{aux}-file at the end of every letter. Note, we have to write
+% immediately (using \cs[no-index]{iow_now:Nx}), to use the current definition
+% of the commands redefined in the local group.
+%    \begin{macrocode}
 \AtEndLetter
   {
     \if@filesw
@@ -657,19 +721,17 @@
 %    }
     \int_incr:N \g_@@_column_int
     \if_int_compare:w \g_@@_column_int > \g_@@_columns_int
-      \int_show:N \g_@@_column_int
       \par
       \skip_vertical:N \g_@@_vertical_skip_dim
       \int_set_eq:NN \g_@@_column_int \c_one_int
       \int_incr:N \g_@@_row_int
       \if_int_compare:w \g_@@_row_int > \g_@@_rows_int
-        \int_show:N \g_@@_row_int
         \clearpage
         \int_set_eq:NN \g_@@_row_int \c_one_int
-      \fi
-    \else
+      \fi:
+    \else:
       \skip_horizontal:N \columnsep
-    \fi
+    \fi:
   }
 %    \end{macrocode}
 % \end{macro}

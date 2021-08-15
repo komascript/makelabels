@@ -22,7 +22,7 @@ how you can print labels simply by printing a letter with special pseudo
 value settings.  Doing so you can use several configuration features.  Using
 `makelabels.lco` in opposite does only implement a `\makelabels` feature
 similar to the standard letter classes.  Currently there are no
-configuration features at `makelabel.lco`.  But you may use package
+configuration features at `makelabels.lco`.  But you may use package
 [`envlab`](https://www.ctan.org/pkg/envlab) from CTAN after loading
 `makelabels.lco` to get various configuration features.
 

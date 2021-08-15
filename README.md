@@ -24,7 +24,7 @@ value settings.  Doing so you can use several configuration features.  Using
 similar to the standard letter classes.  Currently there are no
 configuration features at `makelabel.lco`.  But you may use package
 [`envlab`](https://www.ctan.org/pkg/envlab) from CTAN after loading
-`mlabel.lco` to get various configuration features.
+`makelabels.lco` to get various configuration features.
 
 ## Installation
 

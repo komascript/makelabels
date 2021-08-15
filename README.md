@@ -111,7 +111,7 @@ in the same TEXMF tree you've uses for the installation of
 
 Like all other LCO files you can load `makelabels.lco` using
 `\LoadLetterOption{makelabels}`. For `scrlttr2` loading via optional
-argument of `\documentclass` also works, but is not recommended any linger.
+argument of `\documentclass` also works, but is not recommended any longer.
 
 After loading the LCO file, you can add `\makelabels` into your document
 preamble to active the automatic generation of labels at the end of the

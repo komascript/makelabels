@@ -16,7 +16,7 @@ Requires: KOMA-Script
 
 The standard letter class `letter` has a label feature. You can activate it 
 using `\makelabels`.  While in Germany window envelopes are common, printing
-labels is not common and `scrltt2` never supported label printing.  At the
+labels is not common and `scrlttr2` never supported label printing.  At the
 [German KOMA-Script book](https://komascript.de/komascriptbuch) I've shown
 how you can print labels simply by printing a letter with special pseudo
 value settings.  Doing so you can use several configuration features.  Using
